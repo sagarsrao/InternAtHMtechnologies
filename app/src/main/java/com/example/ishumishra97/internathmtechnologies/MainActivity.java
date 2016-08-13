@@ -3,6 +3,9 @@ package com.example.ishumishra97.internathmtechnologies;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,6 +33,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private ProgressDialog loading;
     ArrayList<Model> routesRecord;
+    private  RVAdapter rvAdapter;
+    RecyclerView rv;
+    CardView cardView;
+    Model model;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         editTextId = (EditText) findViewById(R.id.editTextId);
         buttonGet = (Button) findViewById(R.id.buttonGet);
-        textViewResult = (TextView) findViewById(R.id.textViewResult);
+        //textViewResult = (TextView) findViewById(R.id.textViewResult);
+        rv=(RecyclerView)findViewById(R.id.rv);
         buttonGet.setOnClickListener(this);
     }
 
@@ -49,20 +57,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         loading = ProgressDialog.show(this,"Please wait...","Fetching...",false,false);
 
-        String url = Config.DATA_URL+editTextId.getText().toString().trim();
+        String url = Config.DATA_URL+ROUTE_ID;
 
         StringRequest stringRequest = new StringRequest(url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                loading.dismiss();
+               // loading.dismiss();
                 showJSON(response);
+                loading.dismiss();
             }
         },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error)
                     {
-                        Toast.makeText(MainActivity.this,error.getMessage().toString(),Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this,error.getMessage(),Toast.LENGTH_LONG).show();
                     }
                 });
 
@@ -70,7 +79,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         requestQueue.add(stringRequest);
     }
 
-    private void showJSON(String response)
+    private void showJSON(String response)//server data
     {
         String name="";
         String class1="";
@@ -92,20 +101,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 m1.setClasss(class1);
                 m1.setSection(section);
                 routesRecord.add(m1);
-          }
+
+                cardView=(CardView)findViewById(R.id.card_view);
+                rv=(RecyclerView)findViewById(R.id.rv);
+                Model model=new Model();
+                LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getApplicationContext());
+                rv.setLayoutManager(linearLayoutManager);
+
+                RVAdapter rvAdapter=new RVAdapter(routesRecord);
+                rv.setAdapter(rvAdapter);
+
+
+
+
+            }
         } catch (JSONException e)
         {
             e.printStackTrace();
         }
-        String dataToDisplay="";
+
+
+
+  /*      String dataToDisplay="";
 
         for(int i=0;i<routesRecord.size();i++){
             Model singledata=routesRecord.get(i);
-             dataToDisplay=dataToDisplay+" Name:\t"+ singledata.getName()+"\n Class:\t" + singledata.getClasss()
-                    +"Section:"+singledata.getSection();
-        }
 
-        textViewResult.setText(dataToDisplay);
+            dataToDisplay=dataToDisplay+" Name:\t"+ singledata.getName()+"\n Class:\t" + singledata.getClasss()
+                    +"Section:"+singledata.getSection();
+            System.out.println("Data Displaying"+dataToDisplay);
+ }*/
+
+        /*rvAdapter = new RVAdapter(routesRecord);
+        rv.setAdapter(rvAdapter);*/
+
+       // textViewResult.setText(dataToDisplay);
 
         /*for (Object s:routesRecord) {
           //  Model singledata=routesRecord.get(i);
@@ -114,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }*/
 
 
-      //  textViewResult.setText( " Name:\t"+name+"\n Class:\t" +class1+ " \n Section:\t"+section);
+        //  textViewResult.setText( " Name:\t"+name+"\n Class:\t" +class1+ " \n Section:\t"+section);
     }
 
     public void onClick(View v)
